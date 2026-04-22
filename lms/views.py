@@ -2,12 +2,14 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
+from .paginators import CoursePaginator, LessonPaginator
 from users.permissions import IsModerator, IsOwner
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+    queryset = Course.objects.all()  # Добавляем queryset
     serializer_class = CourseSerializer
+    pagination_class = CoursePaginator
 
     def get_queryset(self):
         user = self.request.user
@@ -31,7 +33,9 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class LessonListCreateView(generics.ListCreateAPIView):
+    queryset = Lesson.objects.all()  # Добавляем queryset
     serializer_class = LessonSerializer
+    pagination_class = LessonPaginator
 
     def get_queryset(self):
         user = self.request.user
@@ -51,8 +55,14 @@ class LessonListCreateView(generics.ListCreateAPIView):
 
 
 class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Lesson.objects.all()
+    queryset = Lesson.objects.all()  # Добавляем queryset
     serializer_class = LessonSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if IsModerator().has_permission(self.request, self):
+            return Lesson.objects.all()
+        return Lesson.objects.filter(owner=user)
 
     def get_permissions(self):
         if self.request.method == 'DELETE':
