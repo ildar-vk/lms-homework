@@ -65,3 +65,18 @@ class Payment(models.Model):
     
     def __str__(self):
         return f"{self.user.email} - {self.amount} - {self.payment_date}"
+
+    # Добавить в модель Payment эти поля:
+    stripe_session_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="ID сессии Stripe")
+    stripe_payment_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на оплату Stripe")
+    status = models.CharField(
+        max_length=50, 
+        default='pending', 
+        choices=[
+            ('pending', 'Ожидает оплаты'),
+            ('paid', 'Оплачен'),
+            ('failed', 'Ошибка'),
+            ('cancelled', 'Отменён'),
+        ],
+        verbose_name="Статус платежа"
+    )
