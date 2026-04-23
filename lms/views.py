@@ -105,3 +105,9 @@ class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 course=course,
                 updated_fields=updated_fields
             )
+    # В начало метода perform_update добавим:
+    # (Отредактируем существующий метод)
+
+    def update(self, request, *args, **kwargs):
+        print("=== DEBUG: update method called ===")
+        return super().update(request, *args, **kwargs)
