@@ -1,4 +1,14 @@
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -6,3 +16,36 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+
+  celery:
+    build: .
+    command: celery -A lms_project worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+
+  celery-beat:
+    build: .
+    command: celery -A lms_project beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/1
