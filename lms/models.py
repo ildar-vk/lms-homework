@@ -36,3 +36,18 @@ class Subscription(models.Model):
     
     def __str__(self):
         return f'{self.user.email} -> {self.course.title}'
+
+
+class CourseUpdateLog(models.Model):
+    """Лог обновлений курса для отслеживания времени последнего обновления"""
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='update_logs')
+    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_fields = models.JSONField(default=list)
+    
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Лог обновления курса'
+        verbose_name_plural = 'Логи обновлений курсов'
+    
+    def __str__(self):
+        return f"{self.course.title} - {self.updated_at}"

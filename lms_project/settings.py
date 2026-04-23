@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    'django_celery_beat',
     'drf_spectacular',
     'users',
     'lms',
@@ -135,3 +136,24 @@ load_dotenv()
 # Stripe keys from environment
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+
+# Celery Configuration
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# Celery Beat settings
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Email settings (для рассылки)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Для тестирования
+# Для реальной рассылки раскомментить:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+# EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'noreply@lms.com'
